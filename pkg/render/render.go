@@ -23,7 +23,13 @@ func NewTemplates(aConfig *config.AppConfig) {
 // RenderTemplate renders a specific html template to the writer w with filename ending in tmpl.
 func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	// Get cache from the app config.
-	templateCache := app.TemplateCache
+	// I want to rebuild the cache if useCache is false, for example when I'm developing the app (aka "dev mode")
+	var templateCache map[string]*template.Template
+	if app.UseCache {
+		templateCache = map[string]*template.Template{} // Empty map, same as the make function.
+	} else {
+		templateCache, _ = CreateTemplateCache()
+	}
 
 	// Get template from cache.
 	templ, templateFound := templateCache[tmpl]
@@ -47,13 +53,9 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 }
 
 func CreateTemplateCache() (map[string]*template.Template, error) {
-	// I want to rebuild the cache if useCache is false, for example when I'm developing the app (aka "dev mode")
-	var templateCache map[string]*template.Template
-	if app.UseCache {
-		templateCache = map[string]*template.Template{} // Empty map, same as the make function.
-	} else {
-		templateCache, _ = CreateTemplateCache()
-	}
+
+	templateCache := map[string]*template.Template{} // Empty map, same as the make function.
+
 	// Get all the files name *.fileName.gohtml from ./templates (FULL PATH from root project)
 	// Ex: templates/home.page.gohtml
 	fileNames, err := filepath.Glob("./templates/*.page.gohtml")

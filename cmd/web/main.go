@@ -18,9 +18,10 @@ func main() {
 	if err != nil {
 		log.Fatal("cannot create template cache")
 	}
+
 	app.TemplateCache = templateCache
 	app.UseCache = false
-	//
+
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
 

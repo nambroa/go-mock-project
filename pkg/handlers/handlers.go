@@ -30,11 +30,11 @@ func NewHandlers(repo *Repository) {
 
 // Home is the home page handler.
 // By adding repo as a receiver, the Home handler has access to all the repository's content.
-func (repo *Repository) Home(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, "home.page.gohtml")
 }
 
 // About is the about page handler.
-func (repo *Repository) About(w http.ResponseWriter, r *http.Request) {
+func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, "about.page.gohtml")
 }
