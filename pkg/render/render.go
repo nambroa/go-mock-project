@@ -4,29 +4,37 @@ package render
 import (
 	"bytes"
 	"fmt"
+	"github.com/nambroa/go-mock-project/pkg/config"
 	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
 )
 
+var functions = template.FuncMap{}
+
+var app *config.AppConfig
+
+// NewTemplates sets the config for the template package.
+func NewTemplates(aConfig *config.AppConfig) {
+	app = aConfig
+}
+
 // RenderTemplate renders a specific html template to the writer w with filename ending in tmpl.
 func RenderTemplate(w http.ResponseWriter, tmpl string) {
-	// Create a template cache.
-	templateCache, err := createTemplateCache()
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Get cache from the app config.
+	templateCache := app.TemplateCache
+
 	// Get template from cache.
 	templ, templateFound := templateCache[tmpl]
 	if !templateFound {
-		log.Fatal(err)
+		log.Fatal("Template not found in cache")
 	}
 
 	// This buffer is arbitrary code to add more error checking below. Not needed.
 	// Without this, you can only error check when writing to w.
 	buf := new(bytes.Buffer)
-	err = templ.Execute(buf, nil)
+	err := templ.Execute(buf, nil)
 	if err != nil {
 		fmt.Println("error executing template:", err)
 	}
@@ -38,9 +46,14 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	}
 }
 
-func createTemplateCache() (map[string]*template.Template, error) {
-	templateCache := map[string]*template.Template{} // Empty map, same as the make function.
-
+func CreateTemplateCache() (map[string]*template.Template, error) {
+	// I want to rebuild the cache if useCache is false, for example when I'm developing the app (aka "dev mode")
+	var templateCache map[string]*template.Template
+	if app.UseCache {
+		templateCache = map[string]*template.Template{} // Empty map, same as the make function.
+	} else {
+		templateCache, _ = CreateTemplateCache()
+	}
 	// Get all the files name *.fileName.gohtml from ./templates (FULL PATH from root project)
 	// Ex: templates/home.page.gohtml
 	fileNames, err := filepath.Glob("./templates/*.page.gohtml")

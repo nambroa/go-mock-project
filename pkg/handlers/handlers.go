@@ -1,16 +1,40 @@
 package handlers
 
 import (
+	"github.com/nambroa/go-mock-project/pkg/config"
 	"github.com/nambroa/go-mock-project/pkg/render"
 	"net/http"
 )
 
+// Repository pattern used to share the appConfig with the handlers.
+
+// Repo is used by the handlers.
+var Repo *Repository
+
+// Repository is the repository type.
+type Repository struct {
+	App *config.AppConfig
+}
+
+// NewRepo creates a new repository with the content being the app config instance.
+func NewRepo(appConfig *config.AppConfig) *Repository {
+	return &Repository{
+		App: appConfig,
+	}
+}
+
+// NewHandlers sets the Repository for the handlers.
+func NewHandlers(repo *Repository) {
+	Repo = repo
+}
+
 // Home is the home page handler.
-func Home(w http.ResponseWriter, r *http.Request) {
+// By adding repo as a receiver, the Home handler has access to all the repository's content.
+func (repo *Repository) Home(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, "home.page.gohtml")
 }
 
 // About is the about page handler.
-func About(w http.ResponseWriter, r *http.Request) {
+func (repo *Repository) About(w http.ResponseWriter, r *http.Request) {
 	render.RenderTemplate(w, "about.page.gohtml")
 }
