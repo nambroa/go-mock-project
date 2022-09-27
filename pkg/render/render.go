@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/nambroa/go-mock-project/pkg/config"
+	"github.com/nambroa/go-mock-project/pkg/models"
 	"html/template"
 	"log"
 	"net/http"
@@ -19,9 +20,12 @@ var app *config.AppConfig
 func NewTemplates(aConfig *config.AppConfig) {
 	app = aConfig
 }
+func AddDefaultData(templateData *models.TemplateData) *models.TemplateData {
+	return templateData
+}
 
 // RenderTemplate renders a specific html template to the writer w with filename ending in tmpl.
-func RenderTemplate(w http.ResponseWriter, tmpl string) {
+func RenderTemplate(w http.ResponseWriter, tmpl string, templateData *models.TemplateData) {
 	// Get cache from the app config.
 	// I want to rebuild the cache if useCache is false, for example when I'm developing the app (aka "dev mode")
 	var templateCache map[string]*template.Template
@@ -40,7 +44,8 @@ func RenderTemplate(w http.ResponseWriter, tmpl string) {
 	// This buffer is arbitrary code to add more error checking below. Not needed.
 	// Without this, you can only error check when writing to w.
 	buf := new(bytes.Buffer)
-	err := templ.Execute(buf, nil)
+	templateData = AddDefaultData(templateData)
+	err := templ.Execute(buf, templateData)
 	if err != nil {
 		fmt.Println("error executing template:", err)
 	}

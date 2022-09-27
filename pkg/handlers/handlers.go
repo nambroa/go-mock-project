@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/nambroa/go-mock-project/pkg/config"
+	"github.com/nambroa/go-mock-project/pkg/models"
 	"github.com/nambroa/go-mock-project/pkg/render"
 	"net/http"
 )
@@ -31,10 +32,11 @@ func NewHandlers(repo *Repository) {
 // Home is the home page handler.
 // By adding repo as a receiver, the Home handler has access to all the repository's content.
 func (m *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, "home.page.gohtml")
+	render.RenderTemplate(w, "home.page.gohtml", &models.TemplateData{})
 }
 
 // About is the about page handler.
 func (m *Repository) About(w http.ResponseWriter, r *http.Request) {
-	render.RenderTemplate(w, "about.page.gohtml")
+	stringMap := map[string]string{"test": "Hello, Again."}
+	render.RenderTemplate(w, "about.page.gohtml", &models.TemplateData{StringMap: stringMap})
 }
