@@ -27,10 +27,13 @@ func main() {
 
 	render.NewTemplates(&app)
 
-	http.HandleFunc("/", handlers.Repo.Home)
-	http.HandleFunc("/about", handlers.Repo.About)
-
 	fmt.Println("Starting application on port", portNumber)
 	// Start a webserver and listen to a specific port.
-	_ = http.ListenAndServe(portNumber, nil)
+	serve := &http.Server{
+		Addr:    portNumber,
+		Handler: routes(&app),
+	}
+
+	err = serve.ListenAndServe()
+	log.Fatal(err)
 }
